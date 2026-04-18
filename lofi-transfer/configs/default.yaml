@@ -1,0 +1,64 @@
+audio:
+  sample_rate: 22050
+  n_fft: 1024
+  hop_length: 256
+  win_length: 1024
+  n_mels: 80
+  f_min: 0
+  f_max: 8000
+  clip_seconds: 5.0
+  n_frames: 432
+  log_mel_floor: 1.0e-5
+
+cyclegan:
+  generator:
+    base_channels: 64
+    n_downsample: 4
+    bottleneck_resblocks: 9
+    norm: instance
+    activation_enc: leaky_relu_0.2
+    activation_dec: relu
+    output_activation: tanh
+  discriminator:
+    base_channels: 64
+    n_layers: 3
+    norm: instance
+  loss:
+    adv_type: lsgan
+    lambda_cyc: 10.0
+    lambda_id: 5.0
+  training:
+    batch_size: 16
+    optimizer: adam
+    lr: 2.0e-4
+    betas: [0.5, 0.999]
+    total_epochs: 200
+    lr_decay_start_epoch: 100
+    image_pool_size: 50
+    ema_decay: 0.999
+    precision: bf16
+
+hifigan:
+  variant: V1
+  init_from: UNIVERSAL_V1
+  upsample_rates: [8, 8, 2, 2]
+  upsample_kernel_sizes: [16, 16, 4, 4]
+  upsample_initial_channel: 512
+  resblock_kernel_sizes: [3, 7, 11]
+  resblock_dilation_sizes: [[1,3,5], [1,3,5], [1,3,5]]
+  resblock_type: 1
+  loss:
+    adv_type: lsgan
+    lambda_fm: 2.0
+    lambda_mel: 45.0
+  training:
+    batch_size: 16
+    segment_size: 8192
+    optimizer: adamw
+    lr: 2.0e-4
+    betas: [0.8, 0.99]
+    weight_decay: 0.01
+    lr_decay: 0.999
+    clean_ft_steps: 200000
+    lofi_ft_steps: 50000
+    precision: fp32

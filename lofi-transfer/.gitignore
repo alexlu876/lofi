@@ -1,0 +1,25 @@
+# Data (too large for git)
+data/raw/
+data/wav_22k_mono/
+data/clips_5s/
+data/mel/
+data/splits/
+data/stats/
+data/manifests/
+data/raw_for_resample/
+data/raw_clean_merged/
+data/raw_clean_instrumental/
+data/raw_clean_vocal_only/
+
+# Training artifacts
+checkpoints/
+logs/
+*.pt
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+
+# OS
+.DS_Store
