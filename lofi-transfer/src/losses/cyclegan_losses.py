@@ -36,14 +36,9 @@ class ImagePool:
         return torch.cat(result, dim=0)
 
 
-def lsgan_loss_d(real_pred: torch.Tensor, fake_pred: torch.Tensor,
-                 smooth_real: float = 0.9) -> torch.Tensor:
-    """LSGAN discriminator loss with one-sided label smoothing.
-
-    Real target is `smooth_real` (default 0.9) instead of 1.0.
-    Fake target remains 0.0 (never smooth fake labels).
-    """
-    return torch.mean((real_pred - smooth_real) ** 2) + torch.mean(fake_pred ** 2)
+def lsgan_loss_d(real_pred: torch.Tensor, fake_pred: torch.Tensor) -> torch.Tensor:
+    """LSGAN discriminator loss. Targets: real=1.0, fake=0.0."""
+    return torch.mean((real_pred - 1.0) ** 2) + torch.mean(fake_pred ** 2)
 
 
 def lsgan_loss_g(fake_pred: torch.Tensor) -> torch.Tensor:

@@ -19,7 +19,6 @@ from src.losses.cyclegan_losses import (
     identity_loss,
     lsgan_loss_d,
     lsgan_loss_g,
-    r1_gradient_penalty,
 )
 from src.models.cyclegan_generator import UNetGenerator
 from src.models.ema import EMA
@@ -143,10 +142,9 @@ def main():
         list(G.parameters()) + list(F_net.parameters()),
         lr=tc["lr"], betas=tuple(tc["betas"]),
     )
-    d_lr = tc.get("lr_d", tc["lr"] * 0.5)  # TTUR: D learns slower
     opt_D = torch.optim.Adam(
         list(D_L.parameters()) + list(D_C.parameters()),
-        lr=d_lr, betas=tuple(tc["betas"]),
+        lr=tc["lr"], betas=tuple(tc["betas"]),  # Same lr as G (original CycleGAN)
     )
 
     lr_lambda = get_lr_lambda(tc["total_epochs"], tc["lr_decay_start_epoch"])
@@ -234,14 +232,6 @@ def main():
                 loss_D_C = lsgan_loss_d(D_C(real_c), D_C(fake_c_pool))
                 loss_D = loss_D_L + loss_D_C
 
-            # R1 gradient penalty every 16 steps — CUDA only (MPS autograd crashes)
-            lambda_r1 = tc.get("lambda_r1", 10.0)
-            if device == "cuda" and global_step % 16 == 0:
-                r1_L = r1_gradient_penalty(D_L, real_l)
-                r1_C = r1_gradient_penalty(D_C, real_c)
-                loss_r1 = (lambda_r1 / 2.0) * (r1_L + r1_C)
-                loss_D = loss_D + loss_r1
-
             loss_D.backward()
             opt_D.step()
 
@@ -295,6 +285,12 @@ def main():
             save_path = ckpt_dir / f"epoch_{epoch:04d}.pt"
             torch.save(save_dict, save_path)
             print(f"  Saved {save_path}")
+            # Keep only last 2 periodic checkpoints to avoid filling disk
+            old_ckpts = sorted(ckpt_dir.glob("epoch_*.pt"))
+            while len(old_ckpts) > 2:
+                old_ckpts[0].unlink()
+                print(f"  Deleted old checkpoint: {old_ckpts[0].name}")
+                old_ckpts.pop(0)
 
         if val_cyc < best_val_loss:
             best_val_loss = val_cyc

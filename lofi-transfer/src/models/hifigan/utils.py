@@ -25,7 +25,7 @@ def load_hifigan_generator(checkpoint_path: str, device: str = "cpu") -> HiFiGAN
         config = None
 
     generator = HiFiGANGenerator()
-    state_dict = torch.load(gen_path, map_location=device, weights_only=True)
+    state_dict = torch.load(gen_path, map_location=device, weights_only=False)
     if "generator" in state_dict:
         state_dict = state_dict["generator"]
     generator.load_state_dict(state_dict)
