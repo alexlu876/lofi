@@ -1,8 +1,10 @@
 # Data (too large for git)
 data/raw/
 data/wav_22k_mono/
+data/wav_24k_mono/
 data/clips_5s/
 data/mel/
+data/lmdb/
 data/splits/
 data/stats/
 data/manifests/
@@ -10,6 +12,10 @@ data/raw_for_resample/
 data/raw_clean_merged/
 data/raw_clean_instrumental/
 data/raw_clean_vocal_only/
+
+# Third-party code + pretrained weights
+ctd_repo/
+pretrained/
 
 # Training artifacts
 checkpoints/
